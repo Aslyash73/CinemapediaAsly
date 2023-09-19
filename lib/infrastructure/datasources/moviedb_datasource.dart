@@ -1,5 +1,7 @@
-import 'package:cinemapedia_flutter/domain/datasources/datasource/models/moviedb/moviedb_response.dart';
+
 import 'package:cinemapedia_flutter/infrastructure/mappaers/movie_mapper.dart';
+import 'package:cinemapedia_flutter/infrastructure/models/moviedb/movie_details.dart';
+import 'package:cinemapedia_flutter/infrastructure/models/moviedb/moviedb_response.dart';
 import 'package:dio/dio.dart';
 import 'package:cinemapedia_flutter/config/constants/enviroment.dart';
 import 'package:cinemapedia_flutter/domain/entitites/movie.dart';
@@ -14,7 +16,6 @@ class MoviedbDatasource extends MovieDatasource {
   }));
 
   List<Movie> _jsonMovies(Map<String, dynamic> json) {
-
     final movieDBResponse = MovieDBResponse.fromJson(json);
 
     final List<Movie> movies = movieDBResponse.results
@@ -29,7 +30,7 @@ class MoviedbDatasource extends MovieDatasource {
   Future<List<Movie>> getNowPlaying({int page = 1}) async {
     final response =
         await dio.get('/movie/now_playing', queryParameters: {'page': page});
- return _jsonMovies(response.data);
+    return _jsonMovies(response.data);
   }
 
   @override
@@ -39,18 +40,32 @@ class MoviedbDatasource extends MovieDatasource {
 
     return _jsonMovies(response.data);
   }
-  
+
   @override
   Future<List<Movie>> getTopRated({int page = 1}) async {
-    final response = await dio.get('/movie/top_rated', queryParameters: {'page': page});
+    final response =
+        await dio.get('/movie/top_rated', queryParameters: {'page': page});
 
     return _jsonMovies(response.data);
   }
-  
+
   @override
   Future<List<Movie>> getUpcoming({int page = 1}) async {
-    final response = await dio.get('/movie/upcoming', queryParameters: {'page': page});
+    final response =
+        await dio.get('/movie/upcoming', queryParameters: {'page': page});
 
     return _jsonMovies(response.data);
+  }
+
+  @override
+  Future<Movie> getMovieById(String id) async {
+
+    final response = await dio.get('/movie/$id');
+
+    if (response.statusCode != 200) {throw Exception('Movie with id: $id not found');}
+
+    final movieDetails = MoviesDetails.fromJson(response.data);
+    final Movie movie = MovieMapper.movieDetailsToEntity(movieDetails);
+    return movie;
   }
 }
