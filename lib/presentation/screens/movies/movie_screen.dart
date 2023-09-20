@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia_flutter/domain/entitites/movie.dart';
 import 'package:cinemapedia_flutter/presentation/providers/movies/movie_info_provider.dart';
 import 'package:cinemapedia_flutter/presentation/providers/providers.dart';
@@ -132,30 +134,33 @@ class _ActorsByMovie extends ConsumerWidget {
               final actor = actors[index];
 
               return Container(
-                  padding: const EdgeInsets.all(8),
-                  width: 135,
-                  child:  Column(
+                padding: const EdgeInsets.all(8),
+                width: 135,
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ClipRRect(
-                     borderRadius: BorderRadius.circular(20),  
-                     child: Image.network(actor.profilePath,
-                    height: 180,
-                    width: 135,
-                    fit: BoxFit.cover,
+                    FadeIn(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.network(
+                          actor.profilePath,
+                          height: 180,
+                          width: 135,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
-                ),
                     const SizedBox(height: 5),
-
                     Text(actor.name, maxLines: 2),
-                    Text(actor.character ?? '',
-                     maxLines: 2,
+                    Text(
+                      actor.character ?? '',
+                      maxLines: 2,
                       style: const TextStyle(
-                      fontWeight: FontWeight.bold, 
-                      overflow: TextOverflow.ellipsis),
+                          fontWeight: FontWeight.bold,
+                          overflow: TextOverflow.ellipsis),
                     ),
                   ],
-              ),
+                ),
               );
             }));
   }
@@ -184,7 +189,14 @@ class _CustomSilverAppBar extends StatelessWidget {
         background: Stack(
           children: [
             SizedBox.expand(
-              child: Image.network(movie.posterPath, fit: BoxFit.cover),
+              child: Image.network(
+                movie.posterPath,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProggress) {
+                  if (loadingProggress != null) return const SizedBox();
+                  return FadeIn(child: child);
+                },
+              ),
             ),
             const SizedBox.expand(
               child: DecoratedBox(
